@@ -4,12 +4,12 @@ namespace App\Data\UserDTO;
 
 use App\Data\BaseDTO\BaseDTO;
 
-class UserDTO extends BaseDTO
+class UserOperationDTO extends BaseDTO
 {
     public function __construct(
+        public int     $id,
         public string  $name,
         public string  $email,
-        public string  $password,
         public ?string $phone,
         public ?string $address,
         public ?string $birthday,
@@ -20,7 +20,7 @@ class UserDTO extends BaseDTO
     public static function rules(): array
     {
         return [
-            'email' => ['required', 'email', 'unique:users'],
+            'email' => ['email'],
         ];
     }
 }

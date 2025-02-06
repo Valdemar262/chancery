@@ -2,28 +2,17 @@
 
 namespace App\Services\RoleAndPermissionService;
 
-use App\Enums\RoleAndPermissionNames;
 use App\Models\User;
 
 class RoleAndPermissionService
 {
-    public function assignClientRole(User $user): void
+    public function assignRole(User $user, string $role): void
     {
-        $user->assignRole(RoleAndPermissionNames::ROLE_CLIENT);
+        $user->assignRole($role);
     }
 
-    public function removeClientRole(User $user): void
+    public function removeRole(User $user, string $role): void
     {
-        $user->removeRole(RoleAndPermissionNames::ROLE_CLIENT);
-    }
-
-    public function assignAdminRole(User $user): void
-    {
-        $user->assignRole(RoleAndPermissionNames::ROLE_ADMIN);
-    }
-
-    public function removeAdminRole(User $user): void
-    {
-        $user->removeRole(RoleAndPermissionNames::ROLE_ADMIN);
+        $user->removeRole($role);
     }
 }
