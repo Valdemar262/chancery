@@ -22,6 +22,9 @@ class Statement extends Model
         'updated_at',
     ];
 
+    /**
+     * @return BelongsTo<User, Statement>
+     */
     public function users(): BelongsTo
     {
         return $this->belongsTo(User::class);

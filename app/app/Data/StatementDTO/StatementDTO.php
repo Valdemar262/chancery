@@ -8,15 +8,18 @@ use Spatie\LaravelData\Optional;
 class StatementDTO extends BaseDTO
 {
     public function __construct(
-        public int|Optional    $id,
-        public string          $title,
-        public int|Optional    $user_id,
-        public int|Optional    $number,
-        public ?string         $date,
+        public int|Optional $id,
+        public string       $title,
+        public int|Optional $user_id,
+        public int|Optional $number,
+        public ?string      $date,
     ) {
         parent::__construct();
     }
 
+    /**
+     * @return array<string, array<int, string>>
+     */
     public static function rules(): array
     {
         return [

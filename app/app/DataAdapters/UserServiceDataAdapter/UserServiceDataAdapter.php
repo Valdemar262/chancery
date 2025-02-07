@@ -85,6 +85,9 @@ class UserServiceDataAdapter
         ]);
     }
 
+    /**
+     * @param Collection<int, User> $users
+     */
     public function createAllUsersDTO(Collection $users): AllUsersDTO
     {
         return AllUsersDTO::validateAndCreate([

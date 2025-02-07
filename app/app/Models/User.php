@@ -32,6 +32,9 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
+    /**
+     * @return HasMany<Statement>
+     */
     public function statements(): HasMany
     {
         return $this->hasMany(Statement::class);

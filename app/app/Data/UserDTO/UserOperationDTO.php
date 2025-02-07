@@ -17,6 +17,9 @@ class UserOperationDTO extends BaseDTO
         parent::__construct();
     }
 
+    /**
+     * @return array<string, array<int, string>>
+     */
     public static function rules(): array
     {
         return [
