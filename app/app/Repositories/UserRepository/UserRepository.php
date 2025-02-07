@@ -17,9 +17,9 @@ class UserRepository
         return User::all();
     }
 
-    public function destroy(int $id): void
+    public function destroy(int $id): int
     {
-        User::destroy($id);
+        return User::destroy($id);
     }
 
     public function findByEmail(string $email): User

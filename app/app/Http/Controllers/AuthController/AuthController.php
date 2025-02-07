@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\AuthController;
 
 use App\DataAdapters\AuthServiceDataAdapter\AuthServiceDataAdapter;
-use App\Enums\AuthResponseMessages;
+use App\Enums\ResponseMessages;
 use App\Http\Controllers\Controller;
 use App\Services\AuthService\AuthService;
 use Illuminate\Http\JsonResponse;
@@ -19,36 +19,36 @@ class AuthController extends Controller
     public function register(Request $request): JsonResponse
     {
         try {
-            return response()->json(
+            return getSuccessResponse(
                 $this->authService->register(
                     $this->authServiceDataAdapter->createRegisterDTOByRequest($request)
                 ));
         } catch (\Exception $e) {
 
-            return response()->json($e->getMessage());
+            return getSuccessResponse($e->getMessage());
         }
     }
 
     public function login(Request $request): JsonResponse
     {
         if ($this->authService->checkRegistrationUser($request)) {
-            return response()->json(
+            return getSuccessResponse(
                 $this->authService->login(
                     $this->authServiceDataAdapter->createLoginDTOByRequest($request)
                 ));
         } else {
-            return response()->json(AuthResponseMessages::UNAUTHORIZED_MESSAGE);
+            return getSuccessResponse(ResponseMessages::UNAUTHORIZED_MESSAGE);
         }
     }
 
     public function me(): JsonResponse
     {
-        return response()->json($this->authService->me());
+        return getSuccessResponse($this->authService->me());
     }
 
     public function refresh(Request $request): JsonResponse
     {
-        return response()->json($this->authService->refreshToken(
+        return getSuccessResponse($this->authService->refreshToken(
             $this->authServiceDataAdapter->createRefreshTokenDTOByRequest($request)
         ));
     }
@@ -57,6 +57,6 @@ class AuthController extends Controller
     {
         $this->authService->logoutUser();
 
-        return response()->json(AuthResponseMessages::LOG_OUT_MESSAGE);
+        return getSuccessResponse(ResponseMessages::LOG_OUT_MESSAGE);
     }
 }

@@ -5,11 +5,11 @@ namespace App\DataAdapters\UserServiceDataAdapter;
 use App\Data\AllUsersDTO\AllUsersDTO;
 use App\Data\RegisterDTO\RegisterDTO;
 use App\Data\UserDTO\UserDTO;
+use App\Data\UserDTO\UserOperationDTO;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Hash;
 use Symfony\Component\HttpFoundation\Request;
 use App\Models\User;
-use App\Data\UserRoleAndPermissionDTO\UserRoleAndPermissionDTO;
 
 class UserServiceDataAdapter
 {
@@ -43,9 +43,22 @@ class UserServiceDataAdapter
         );
     }
 
-    public function createUpdateUserDTOByRequest(Request $request): UserDTO
+    public function createUserOperationDTO(User $user): UserOperationDTO
     {
-        return $this->createUpdateUserDTO(
+        return UserOperationDTO::validateAndCreate([
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'phone' => $user->phone,
+            'address' => $user->address,
+            'birthday' => $user->birthday,
+        ]);
+    }
+
+    public function createUserOperationDTOByRequest(Request $request): UserOperationDTO
+    {
+        return $this->createUserOperationDataDTO(
+            id: $request->get('id'),
             name: $request->get('name'),
             email: $request->get('email'),
             phone: $request->get('phone'),
@@ -54,30 +67,21 @@ class UserServiceDataAdapter
         );
     }
 
-    public function createUpdateUserDTO(
+    public function createUserOperationDataDTO(
+        int     $id,
         string  $name,
         string  $email,
         ?string $phone,
         ?string $address,
         ?string $birthday,
-    ): UserDTO {
-        return UserDTO::validateAndCreate([
+    ): UserOperationDTO {
+        return UserOperationDTO::validateAndCreate([
+            'id' => $id,
             'name' => $name,
             'email' => $email,
-            'avatar' => $phone,
-            'phone' => $address,
-            'nickname' => $birthday,
-        ]);
-    }
-
-    public function createResponseClientUserDTO(User $user): UserDTO
-    {
-        return UserDTO::validateAndCreate([
-            'name' => $user->name,
-            'email' => $user->email,
-            'avatar' => $user->avatar,
-            'phone' => $user->phone,
-            'nickname' => $user->nickname,
+            'phone' => $phone,
+            'address' => $address,
+            'birthday' => $birthday
         ]);
     }
 
@@ -85,13 +89,6 @@ class UserServiceDataAdapter
     {
         return AllUsersDTO::validateAndCreate([
             'allUsers' => $users,
-        ]);
-    }
-
-    public function createUserRoleAndPermissionDTO(User $user): UserRoleAndPermissionDTO
-    {
-        return UserRoleAndPermissionDTO::validateAndCreate([
-            'user' => $user,
         ]);
     }
 }

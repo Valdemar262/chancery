@@ -4,11 +4,16 @@ namespace App\Services\UserService;
 
 use App\Data\AllUsersDTO\AllUsersDTO;
 use App\Data\UserDTO\UserDTO;
+use App\Data\UserDTO\UserOperationDTO;
 use App\DataAdapters\UserServiceDataAdapter\UserServiceDataAdapter;
-use App\Enums\AuthResponseMessages;
+use App\Enums\ResponseMessages;
+use App\Enums\ErrorMessages;
+use App\Enums\RoleAndPermissionNames;
 use App\Models\User;
 use App\Repositories\UserRepository\UserRepository;
 use App\Services\RoleAndPermissionService\RoleAndPermissionService;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
 
 class UserService
 {
@@ -25,73 +30,74 @@ class UserService
         );
     }
 
-    public function showUser(int $id): UserDTO
+    public function showUser(User $user): UserOperationDTO
     {
-        $user = $this->userRepository->findById($id);
-
-        return $this->userServiceDataAdapter->createResponseClientUserDTO($user);
+        return $this->userServiceDataAdapter->createUserOperationDTO($user);
     }
 
-    public function updateUser(UserDTO $updateUserDTO, User $user): UserDTO
+    public function updateUser(UserOperationDTO $updateUserDTO): UserOperationDTO
     {
-        $user->update([
-            'name' => $updateUserDTO->name,
-            'email' => $updateUserDTO->email,
-            'phone' => $updateUserDTO->phone,
-            'address' => $updateUserDTO->address,
-            'birthday' => $updateUserDTO->birthday,
-            'update_at' => now(),
-        ]);
+        try {
+            $user = $this->userRepository->findById($updateUserDTO->id);
+            $user->updateOrFail([
+                'id' => $updateUserDTO->id,
+                'name' => $updateUserDTO->name,
+                'email' => $updateUserDTO->email,
+                'phone' => $updateUserDTO->phone,
+                'address' => $updateUserDTO->address,
+                'birthday' => $updateUserDTO->birthday,
+                'update_at' => now(),
+            ]);
 
-        return $this->userServiceDataAdapter->createResponseClientUserDTO($user);
+            return $this->userServiceDataAdapter->createUserOperationDTO($user);
+        } catch (\Throwable $e) {
+            throw new ModelNotFoundException($e->getMessage());
+        }
     }
 
     public function deleteUser(int $id): string
     {
-        $this->userRepository->destroy($id);
+        if ($this->userRepository->destroy($id)) {
+            return ResponseMessages::DELETE_USER_MESSAGE;
+        }
 
-        return AuthResponseMessages::DELETE_USER_MESSAGE;
-    }
-
-    public function truncate(): void
-    {
-        User::truncate();
+        return ErrorMessages::USER_NOT_FOUND;
     }
 
     public function createUser(UserDTO $userDTO): User
     {
         $user = User::create($userDTO->toArray());
 
-        $this->assignClientRole($user);
+        $request = new Request();
+
+        $request->replace([
+            'role' => RoleAndPermissionNames::ROLE_CLIENT,
+        ]);
+
+        $this->assignRole($user, $request);
 
         return $user;
     }
 
-    public function assignClientRole(User $user): string
+    public function assignRole(User $user, Request $request): string
     {
-        $this->roleAndPermissionService->assignClientRole($user);
+        $role = $request->get('role');
 
-        return AuthResponseMessages::CLIENT_ROLE_APPOINTED;
+        if (RoleAndPermissionNames::getRoles()->search($role)) {
+            $this->roleAndPermissionService->assignRole($user, $role);
+            return ResponseMessages::ROLE_APPOINTED;
+        }
+        return ResponseMessages::ROLE_DOES_NOT_EXIST;
     }
 
-    public function assignAdminRole(User $user): string
+    public function removeRole(User $user, Request $request): string
     {
-        $this->roleAndPermissionService->assignAdminRole($user);
+        $role = $request->get('role');
 
-        return AuthResponseMessages::ADMIN_ROLE_APPOINTED;
-    }
-
-    public function unassignClientRole(User $user): string
-    {
-        $this->roleAndPermissionService->removeClientRole($user);
-
-        return AuthResponseMessages::CLIENT_ROLE_REMOVED;
-    }
-
-    public function unassignAdminRole(User $user): string
-    {
-        $this->roleAndPermissionService->removeAdminRole($user);
-
-        return AuthResponseMessages::ADMIN_ROLE_REMOVED;
+        if (RoleAndPermissionNames::getRoles()->search($role)) {
+            $this->roleAndPermissionService->removeRole($user, $role);
+            return ResponseMessages::ROLE_REMOVED;
+        }
+        return ResponseMessages::ROLE_DOES_NOT_EXIST;
     }
 }

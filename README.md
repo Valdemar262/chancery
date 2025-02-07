@@ -22,3 +22,5 @@ Chancery provides simple containerized infrastructure of `Laravel, Nginx, Postgr
 #### PASSPORT_PASSWORD_SECRET=... .
 ### 6) Create the first role for users:
 #### `php artisan permission:create-role client api`, `php artisan permission:create-role admin api`.
+### 7) To start the seeds, run the command:
+#### `php artisan db:seed`.
