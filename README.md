@@ -13,3 +13,12 @@ Chancery provides simple containerized infrastructure of `Laravel, Nginx, Postgr
 #### `docker compose --env-file app/.env up -d`.
 ### 3) Into app container run next command:
 #### `composer install`.
+### 4) Run the database migration using:
+#### `php artisan migrate`.
+### 5) Then generate encryption keys to create secure access tokens
+#### `php artisan passport:install`,
+### insert password grant client in `.env`
+#### PASSPORT_PASSWORD_CLIENT_ID=... ,
+#### PASSPORT_PASSWORD_SECRET=... .
+### 6) Create the first role for users:
+#### `php artisan permission:create-role client api`, `php artisan permission:create-role admin api`.
