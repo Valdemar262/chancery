@@ -4,7 +4,7 @@ namespace App\Enums;
 
 class ResponseMessages
 {
-    const LOG_OUT_MESSAGE = 'User successfully signed out';
+    const LOG_OUT_MESSAGE = 'User logged out successfully';
 
     const UNAUTHORIZED_MESSAGE = 'Unauthorized';
 

@@ -4,9 +4,16 @@ namespace Database\Factories;
 
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Models\Statement;
 
+/**
+ * @extends Factory<Statement>
+ */
 class StatementFactory extends Factory
 {
+    /**
+     *@return array<string, mixed>
+     */
     public function definition(): array
     {
         return [

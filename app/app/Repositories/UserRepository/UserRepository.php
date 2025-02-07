@@ -12,6 +12,9 @@ class UserRepository
         return User::find($id);
     }
 
+    /**
+     * @return Collection<int, User>
+     */
     public function getAll(): Collection
     {
         return User::all();

@@ -16,9 +16,7 @@ class StatementService
     public function __construct(
         private readonly StatementServiceDataAdapter $statementServiceDataAdapter,
         private readonly StatementRepository         $statementRepository,
-    )
-    {
-    }
+    ) {}
 
     public function createStatement(StatementDTO $statementDTO): Statement
     {
@@ -32,15 +30,15 @@ class StatementService
         );
     }
 
-    public function updateStatement(StatementDTO $updatePostDTO): StatementDTO
+    public function updateStatement(StatementDTO $updateStatementDTO): StatementDTO
     {
         try {
-            $statement = $this->statementRepository->findById($updatePostDTO->id);
+            $statement = $this->statementRepository->findById($updateStatementDTO->id);
 
             $statement->update([
-                'title' => $updatePostDTO->title,
-                'number' => $updatePostDTO->number,
-                'date' => $updatePostDTO->date,
+                'title' => $updateStatementDTO->title,
+                'number' => $updateStatementDTO->number,
+                'date' => $updateStatementDTO->date,
             ]);
 
             return $this->statementServiceDataAdapter->createResponseStatementDTO($statement);

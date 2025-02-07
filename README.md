@@ -24,3 +24,7 @@ Chancery provides simple containerized infrastructure of `Laravel, Nginx, Postgr
 #### `php artisan permission:create-role client api`, `php artisan permission:create-role admin api`.
 ### 7) To start the seeds, run the command:
 #### `php artisan db:seed`.
+### 8) To run the phpstan code analyzer, run the command:
+#### `./vendor/bin/phpstan analyse --memory-limit=1G`
+### 9) To generate documentation, run the command:
+#### `php artisan l5-swagger:generate`.

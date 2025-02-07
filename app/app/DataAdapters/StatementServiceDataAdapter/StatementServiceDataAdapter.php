@@ -73,6 +73,9 @@ class StatementServiceDataAdapter
         ]);
     }
 
+    /**
+     * @param Collection<int, Statement> $statements
+     */
     public function createAllStatementsDTO(Collection $statements): AllStatementsDTO
     {
         return AllStatementsDTO::validateAndCreate([

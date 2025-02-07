@@ -10,6 +10,9 @@ class RoleAndPermissionNames
 
     const ROLE_ADMIN = 'admin';
 
+    /**
+     * @return Collection<string, string>
+     */
     public static function getRoles(): Collection
     {
         return collect([
