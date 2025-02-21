@@ -4,6 +4,8 @@ use App\Http\Controllers\AuthController\AuthController;
 use App\Http\Controllers\StatementController\StatementController;
 use App\Http\Controllers\UserController\UserController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\BookingController\BookingController;
+use App\Http\Controllers\ResourceController\ResourceController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/refresh', [AuthController::class, 'refresh']);
@@ -24,6 +26,12 @@ Route::group(['middleware' => ['auth:api']], function () {
         Route::post('/createStatement', [StatementController::class, 'createStatement']);
         Route::put('/updateStatement', [StatementController::class, 'updateStatement']);
         Route::delete('/deleteStatement/{id}', [StatementController::class, 'deleteStatement']);
+
+        Route::post('/resources', [ResourceController::class, 'createResources']);
+        Route::get('/resources', [ResourceController::class, 'getAllResources']);
+        Route::post('/bookings', [BookingController::class, 'createBooking']);
+        Route::get('/resources/{id}/bookings', [BookingController::class, 'getBookingsForResource']);
+        Route::delete('/bookings/{id}', [BookingController::class, 'deleteBooking']);
     });
     Route::group(['middleware' => ['role:admin']], function () {
 
