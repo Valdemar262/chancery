@@ -17,4 +17,8 @@ class ResponseMessages
     const ROLE_REMOVED = 'Role removed successfully';
 
     const DELETE_STATEMENT_SUCCESS = 'Statement deleted successfully';
+
+    const DELETE_BOOKING_SUCCESS = 'Booking deleted successfully';
+
+    const BOOKING_NOT_FOUND = 'Booking not found';
 }

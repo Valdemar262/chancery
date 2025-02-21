@@ -28,3 +28,5 @@ Chancery provides simple containerized infrastructure of `Laravel, Nginx, Postgr
 #### `./vendor/bin/phpstan analyse --memory-limit=1G`
 ### 9) To generate documentation, run the command:
 #### `php artisan l5-swagger:generate`.
+### To view the documentation in your browser, go to:
+#### `http://localhost:8080/api/documentation`

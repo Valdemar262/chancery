@@ -25,8 +25,7 @@ class StatementServiceDataAdapter
         string  $user_id,
         int     $number,
         ?string $date,
-    ): StatementDTO
-    {
+    ): StatementDTO {
         return StatementDTO::validateAndCreate([
             'title' => $title,
             'user_id' => $user_id,
