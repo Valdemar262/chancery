@@ -12,6 +12,8 @@ RUN apt update \
 RUN apt-get update && apt-get install -y libpq-dev \
     && docker-php-ext-install pdo pdo_pgsql pgsql
 
+RUN docker-php-ext-install pcntl
+
 COPY ./php.ini /usr/local/etc/php/conf.d/php.ini
 
 WORKDIR /var/www/app
@@ -24,4 +26,4 @@ RUN pecl install xdebug \
 RUN touch /var/log/xdebug.log && \
     chmod 777 /var/log/xdebug.log
 
-USER root
+USER www-data

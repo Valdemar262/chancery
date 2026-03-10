@@ -49,7 +49,7 @@ return [
                  * Absolute paths to directory containing the swagger annotations are stored.
                  */
                 'annotations' => [
-                    base_path('app'),
+                    base_path('App'),
                 ],
             ],
         ],
@@ -206,9 +206,9 @@ return [
                     'scheme' => 'https',
                     'flows' => [
                         "password" => [
-                            "authorizationUrl" => config('app.url') . '/oauth/authorize',
-                            "tokenUrl" => config('app.url') . '/oauth/token',
-                            "refreshUrl" => config('app.url') . '/token/refresh',
+                            "authorizationUrl" => config('App.url') . '/oauth/authorize',
+                            "tokenUrl" => config('App.url') . '/oauth/token',
+                            "refreshUrl" => config('App.url') . '/token/refresh',
                             "scopes" => []
                         ],
                     ],
