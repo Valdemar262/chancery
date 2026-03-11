@@ -30,6 +30,8 @@ class Statement extends Model
         'number',
         'date',
         'status',
+        'resource_id',
+        'approved_by',
     ];
 
     protected $hidden = [

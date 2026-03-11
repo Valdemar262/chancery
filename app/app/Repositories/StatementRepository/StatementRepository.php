@@ -2,6 +2,7 @@
 
 namespace App\Repositories\StatementRepository;
 
+use App\Data\StatementDTO\StatementDTO;
 use App\Models\Statement;
 use Illuminate\Database\Eloquent\Collection;
 use Spatie\LaravelData\Optional;
@@ -24,5 +25,11 @@ class StatementRepository
     public function destroy(int $id): int
     {
         return Statement::destroy($id);
+    }
+
+    public function updateStatement(StatementDTO $statementDTO): bool
+    {
+        return $this->findById($statementDTO->id)
+            ->update($statementDTO->toArray());
     }
 }

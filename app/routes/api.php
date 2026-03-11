@@ -26,6 +26,9 @@ Route::group(['middleware' => ['auth:api']], function () {
         Route::post('/createStatement', [StatementController::class, 'createStatement']);
         Route::put('/updateStatement', [StatementController::class, 'updateStatement']);
         Route::delete('/deleteStatement/{id}', [StatementController::class, 'deleteStatement']);
+        Route::put('/statement/submit/{statement}', [StatementController::class, 'submit']);
+        Route::put('/statement/reject/{id}', [StatementController::class, 'reject']);
+        Route::put('/statement/approve/{id}', [StatementController::class, 'approve']);
 
         Route::post('/resources', [ResourceController::class, 'createResources']);
         Route::get('/resources', [ResourceController::class, 'getAllResources']);

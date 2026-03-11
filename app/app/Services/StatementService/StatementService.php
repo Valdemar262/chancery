@@ -7,9 +7,13 @@ use App\Data\StatementDTO\StatementDTO;
 use App\DataAdapters\StatementServiceDataAdapter\StatementServiceDataAdapter;
 use App\Enums\ErrorMessages;
 use App\Enums\ResponseMessages;
+use App\Events\StatementSubmitted;
 use App\Models\Statement;
 use App\Repositories\StatementRepository\StatementRepository;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Log;
+use phpDocumentor\Reflection\Exception;
+use Throwable;
 
 class StatementService
 {
@@ -42,7 +46,7 @@ class StatementService
             ]);
 
             return $this->statementServiceDataAdapter->createResponseStatementDTO($statement);
-        } catch (\Throwable) {
+        } catch (Throwable) {
             throw new ModelNotFoundException(ErrorMessages::STATEMENT_NOT_FOUND);
         }
     }
@@ -55,5 +59,26 @@ class StatementService
         }
 
         return ErrorMessages::STATEMENT_NOT_FOUND;
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function submitStatement(StatementDTO $statementDTO): StatementDTO
+    {
+        try {
+            $this->statementRepository->updateStatement(
+                $this->statementServiceDataAdapter->createForSubmitStatementDTO($statementDTO),
+            );
+
+            event(new StatementSubmitted($this->statementRepository->findById($statementDTO->id)));
+
+            return $this->statementServiceDataAdapter->createResponseStatementDTO(
+                $this->statementRepository->findById($statementDTO->id)
+            );
+        } catch (Throwable $exception) {
+            Log::error($exception);
+            throw new Exception($exception->getMessage());
+        }
     }
 }

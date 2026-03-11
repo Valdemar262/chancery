@@ -46,7 +46,6 @@ services:
       - app
       - redis
     environment:
-      # Чтобы Reverb видел те же переменные, что и приложение
       APP_ENV: local
       APP_DEBUG: "true"
       APP_KEY: ${APP_KEY}
@@ -61,7 +60,7 @@ services:
       REVERB_APP_ID: ${REVERB_APP_ID}
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      REDIS_PASSWORD: "yourpassword"
     ports:
       - "6001:6001"
     networks:
@@ -89,7 +88,7 @@ services:
       - "63880:6379"
     volumes:
       - ./redisData:/data
-    command: redis-server --requirepass ${REDIS_PASSWORD}
+    command: ["redis-server", "--requirepass", "yourpassword"]
     networks:
       - chancery
 
@@ -105,6 +104,21 @@ services:
     ports:
       - "8025:8025"
       - "1025:1025"
+    networks:
+      - chancery
+
+  queue:
+    container_name: chancery-queue
+    restart: unless-stopped
+    build:
+      context: php
+    working_dir: /var/www/app
+    command: php artisan queue:work --verbose --tries=3 --timeout=90
+    volumes:
+      - ./app:/var/www/app
+    depends_on:
+      - app
+      - redis
     networks:
       - chancery
 
