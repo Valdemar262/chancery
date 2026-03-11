@@ -49,7 +49,7 @@ return [
                  * Absolute paths to directory containing the swagger annotations are stored.
                  */
                 'annotations' => [
-                    base_path('App'),
+                    base_path('app'),
                 ],
             ],
         ],
@@ -146,7 +146,7 @@ return [
              * @see \OpenApi\scan
              */
             'processors' => [
-                // new \App\SwaggerProcessors\SchemaQueryParameter(),
+                // new \app\SwaggerProcessors\SchemaQueryParameter(),
             ],
 
             /**
@@ -206,9 +206,9 @@ return [
                     'scheme' => 'https',
                     'flows' => [
                         "password" => [
-                            "authorizationUrl" => config('App.url') . '/oauth/authorize',
-                            "tokenUrl" => config('App.url') . '/oauth/token',
-                            "refreshUrl" => config('App.url') . '/token/refresh',
+                            "authorizationUrl" => config('app.url') . '/oauth/authorize',
+                            "tokenUrl" => config('app.url') . '/oauth/token',
+                            "refreshUrl" => config('app.url') . '/token/refresh',
                             "scopes" => []
                         ],
                     ],

@@ -29,12 +29,12 @@
     },
     "autoload": {
         "psr-4": {
-            "App\\": "App/",
+            "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
         },
         "files": [
-            "App/Http/Helpers/helpers.php"
+            "app/Http/Helpers/helpers.php"
         ]
     },
     "autoload-dev": {

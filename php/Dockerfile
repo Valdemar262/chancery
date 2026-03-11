@@ -26,4 +26,4 @@ RUN pecl install xdebug \
 RUN touch /var/log/xdebug.log && \
     chmod 777 /var/log/xdebug.log
 
-USER www-data
+USER root

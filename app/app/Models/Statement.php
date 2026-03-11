@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use app\Enums\StatementStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -28,6 +29,7 @@ class Statement extends Model
         'user_id',
         'number',
         'date',
+        'status',
     ];
 
     protected $hidden = [
@@ -35,11 +37,27 @@ class Statement extends Model
         'updated_at',
     ];
 
-    /**
-     * @return BelongsTo<User, Statement>
-     */
+    protected $casts = [
+        'status' => StatementStatus::class,
+    ];
+
     public function users(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function scopeDraft($query)
+    {
+        return $query->where('status', 'draft');
+    }
+
+    public function scopePending($query)
+    {
+        return $query->where('status', 'pending');
+    }
+
+    public function scopeApproved($query)
+    {
+        return $query->where('status', 'approved');
     }
 }

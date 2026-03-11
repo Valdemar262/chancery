@@ -34,11 +34,11 @@ class OauthClient
     public function refreshToken(RefreshTokenDTO $refreshTokenDTO): RefreshTokenResponseDTO
     {
         return $this->oauthClientDataAdapter->createRefreshTokenOauthResponseDTO(
-            Http::asForm()->post(config('App.OAUTH_URL') . '/oauth/token', [
+            Http::asForm()->post(config('app.OAUTH_URL') . '/oauth/token', [
                 'grant_type' => 'refresh_token',
                 'refresh_token' => $refreshTokenDTO->refreshToken,
-                'client_id' => config('App.PASSPORT_PASSWORD_CLIENT_ID'),
-                'client_secret' => config('App.PASSPORT_PASSWORD_SECRET'),
+                'client_id' => config('app.PASSPORT_PASSWORD_CLIENT_ID'),
+                'client_secret' => config('app.PASSPORT_PASSWORD_SECRET'),
                 'scope' => '',
             ])
         );
@@ -46,10 +46,10 @@ class OauthClient
 
     public function makePostRequest(string $email, string $password): Response
     {
-        return Http::post(config('App.OAUTH_URL') . '/oauth/token', [
+        return Http::post(config('app.OAUTH_URL') . '/oauth/token', [
             'grant_type' => 'password',
-            'client_id' => config('App.PASSPORT_PASSWORD_CLIENT_ID'),
-            'client_secret' => config('App.PASSPORT_PASSWORD_SECRET'),
+            'client_id' => config('app.PASSPORT_PASSWORD_CLIENT_ID'),
+            'client_secret' => config('app.PASSPORT_PASSWORD_SECRET'),
             'username' => $email,
             'password' => $password,
             'scope' => '',
