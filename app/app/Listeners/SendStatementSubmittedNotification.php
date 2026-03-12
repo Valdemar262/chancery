@@ -19,7 +19,7 @@ class SendStatementSubmittedNotification
      */
     public function handle(StatementSubmitted $event): void
     {
-        Log::info('Принял событие отправки заявки на проверку.', [
+        Log::info('Received the event of sending a request for review', [
             'statement_id' => $event->statement->id,
         ]);
 

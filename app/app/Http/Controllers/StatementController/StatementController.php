@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\StatementController;
 
 use App\DataAdapters\StatementServiceDataAdapter\StatementServiceDataAdapter;
+use App\Exceptions\ForbiddenException;
 use App\Http\Controllers\Controller;
 use App\Models\Statement;
 use App\Services\StatementService\StatementService;
@@ -60,6 +61,29 @@ class StatementController extends Controller
         return getSuccessResponse(
             $this->statementService->submitStatement(
                 $this->statementServiceDataAdapter->createResponseStatementDTO($statement),
+            ),
+        );
+    }
+
+//    public function reject(Statement $statement): JsonResponse
+//    {
+//        return getSuccessResponse(
+//            $this->statementService->rejectStatement(
+//                $this->statementServiceDataAdapter->createResponseStatementDTO($statement),
+//            ),
+//        );
+//    }
+
+    /**
+     * @throws ForbiddenException
+     * @throws \Throwable
+     */
+    public function approve(Statement $statement): JsonResponse
+    {
+        return getSuccessResponse(
+            $this->statementService->approveStatement(
+                $this->statementServiceDataAdapter->createResponseStatementDTO($statement),
+                auth()->user(),
             )
         );
     }

@@ -12,6 +12,10 @@ Route::post('/refresh', [AuthController::class, 'refresh']);
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::group(['middleware' => ['auth:api']], function () {
+
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/me', [AuthController::class, 'me']);
+
     Route::group(['middleware' => ['role:client']], function () {
 
         Route::post('/logout', [AuthController::class, 'logout']);
@@ -27,8 +31,6 @@ Route::group(['middleware' => ['auth:api']], function () {
         Route::put('/updateStatement', [StatementController::class, 'updateStatement']);
         Route::delete('/deleteStatement/{id}', [StatementController::class, 'deleteStatement']);
         Route::put('/statement/submit/{statement}', [StatementController::class, 'submit']);
-        Route::put('/statement/reject/{id}', [StatementController::class, 'reject']);
-        Route::put('/statement/approve/{id}', [StatementController::class, 'approve']);
 
         Route::post('/resources', [ResourceController::class, 'createResources']);
         Route::get('/resources', [ResourceController::class, 'getAllResources']);
@@ -36,10 +38,11 @@ Route::group(['middleware' => ['auth:api']], function () {
         Route::get('/resources/{id}/bookings', [BookingController::class, 'getBookingsForResource']);
         Route::delete('/bookings/{id}', [BookingController::class, 'deleteBooking']);
     });
+
     Route::group(['middleware' => ['role:admin']], function () {
 
-        Route::post('/logout', [AuthController::class, 'logout']);
-        Route::get('/me', [AuthController::class, 'me']);
+        Route::put('/statement/reject/{statement}', [StatementController::class, 'reject']);
+        Route::put('/statement/approve/{statement}', [StatementController::class, 'approve']);
 
         Route::post('assignRole/{user}', [UserController::class, 'assignRole']);
         Route::post('removeRole/{user}', [UserController::class, 'removeRole']);

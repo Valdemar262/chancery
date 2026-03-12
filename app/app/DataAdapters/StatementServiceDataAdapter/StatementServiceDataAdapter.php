@@ -32,6 +32,7 @@ class StatementServiceDataAdapter
             'user_id' => $user_id,
             'number' => $number,
             'date' => $date,
+            'status' => StatementStatus::DRAFT->value,
         ]);
     }
 
