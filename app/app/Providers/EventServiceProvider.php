@@ -3,9 +3,11 @@
 namespace App\Providers;
 
 use App\Events\StatementApproved;
+use App\Events\StatementRejected;
 use App\Events\StatementSubmitted;
 use App\Listeners\CreateBookingFromStatement;
 use App\Listeners\SendStatementApprovedNotification;
+use App\Listeners\SendStatementRejectNotification;
 use App\Listeners\SendStatementSubmittedNotification;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -28,6 +30,9 @@ class EventServiceProvider extends ServiceProvider
         StatementApproved::class => [
             SendStatementApprovedNotification::class,
             CreateBookingFromStatement::class,
+        ],
+        StatementRejected::class => [
+            SendStatementRejectNotification::class,
         ],
     ];
 

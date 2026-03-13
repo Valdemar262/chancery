@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\StatementController;
 
 use App\DataAdapters\StatementServiceDataAdapter\StatementServiceDataAdapter;
-use App\Exceptions\ForbiddenException;
 use App\Http\Controllers\Controller;
 use App\Models\Statement;
 use App\Services\StatementService\StatementService;
 use Illuminate\Http\JsonResponse;
 use phpDocumentor\Reflection\Exception;
 use Symfony\Component\HttpFoundation\Request;
+use Throwable;
 
 class StatementController extends Controller
 {
@@ -65,18 +65,21 @@ class StatementController extends Controller
         );
     }
 
-//    public function reject(Statement $statement): JsonResponse
-//    {
-//        return getSuccessResponse(
-//            $this->statementService->rejectStatement(
-//                $this->statementServiceDataAdapter->createResponseStatementDTO($statement),
-//            ),
-//        );
-//    }
+    /**
+     * @throws Throwable
+     */
+    public function reject(Statement $statement): JsonResponse
+    {
+        return getSuccessResponse(
+            $this->statementService->rejectStatement(
+                $this->statementServiceDataAdapter->createResponseStatementDTO($statement),
+                auth()->user(),
+            ),
+        );
+    }
 
     /**
-     * @throws ForbiddenException
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function approve(Statement $statement): JsonResponse
     {

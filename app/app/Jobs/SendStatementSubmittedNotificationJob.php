@@ -10,24 +10,21 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class SendStatementSubmittedNotificationJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    /**
-     * Create a new job instance.
-     */
     public function __construct(
         public int $adminId,
         public int $statementId,
     ) {}
 
-    /**
-     * Execute the job.
-     */
     public function handle(): void
     {
+       Log::info('Sending email user for statement submitted');
+
         $adminUser = User::query()->find($this->adminId);
 
         if (!$adminUser || !$adminUser->hasRole('admin')) {

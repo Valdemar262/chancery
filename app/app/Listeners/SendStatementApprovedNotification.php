@@ -14,7 +14,7 @@ class SendStatementApprovedNotification
     {
         Log::info('The admin has checked the application.', [
             'statement_id' => $event->statement->id,
-            'admin_id'     => $event->user->id,
+            'user_id'      => $event->user->id,
         ]);
 
         SendStatementApprovedNotificationJob::dispatch(
