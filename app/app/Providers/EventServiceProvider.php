@@ -2,10 +2,12 @@
 
 namespace App\Providers;
 
+use App\Events\BookingConflict;
 use App\Events\StatementApproved;
 use App\Events\StatementRejected;
 use App\Events\StatementSubmitted;
 use App\Listeners\CreateBookingFromStatement;
+use App\Listeners\SendBookingConflictNotification;
 use App\Listeners\SendStatementApprovedNotification;
 use App\Listeners\SendStatementRejectNotification;
 use App\Listeners\SendStatementSubmittedNotification;
@@ -33,6 +35,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         StatementRejected::class => [
             SendStatementRejectNotification::class,
+        ],
+        BookingConflict::class => [
+            SendBookingConflictNotification::class,
         ],
     ];
 

@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
+use App\Jobs\Traits\LogExecutionTrait;
 use App\Models\Statement;
 use App\Models\User;
 use app\Notifications\StatementSubmittedNotification;
@@ -14,7 +17,7 @@ use Illuminate\Support\Facades\Log;
 
 class SendStatementSubmittedNotificationJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, LogExecutionTrait;
 
     public function __construct(
         public int $adminId,

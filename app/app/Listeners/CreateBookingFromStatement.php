@@ -14,10 +14,10 @@ class CreateBookingFromStatement
     {
         Log::info('Starting create booking from statement.', [
             'statement_id' => $event->statement->id,
-            'resource_id' => $event->statement->resource_id,
-            'status' => $event->statement->status,
+            'resource_id'  => $event->statement->resource_id,
+            'status'       => $event->statement->status,
         ]);
 
-        CreateBookingFromStatementJob::dispatch($event->statement);
+        CreateBookingFromStatementJob::dispatch($event->statement, $event->user);
     }
 }
