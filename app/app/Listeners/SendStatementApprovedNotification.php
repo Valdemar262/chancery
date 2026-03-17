@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Listeners;
 
+use App\Data\StatementNotificationPayload\StatementNotificationPayload;
+use App\Enums\StatementNotificationType;
 use App\Events\StatementApproved;
-use App\Jobs\SendStatementApprovedNotificationJob;
+use App\Jobs\Dispatchers\StatementNotificationJobDispatcher;
 use Illuminate\Support\Facades\Log;
 
 class SendStatementApprovedNotification
@@ -17,9 +19,10 @@ class SendStatementApprovedNotification
             'user_id'      => $event->user->id,
         ]);
 
-        SendStatementApprovedNotificationJob::dispatch(
-            user: $event->user,
-            statementId: $event->statement->id,
-        );
+        app(StatementNotificationJobDispatcher::class)
+            ->dispatch(
+                StatementNotificationType::APPROVED,
+                new StatementNotificationPayload($event->statement, $event->user)
+            );
     }
 }

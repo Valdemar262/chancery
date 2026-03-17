@@ -18,14 +18,13 @@ use Illuminate\Support\Facades\Log;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
-class StatementRejectedNotificationJob implements ShouldQueue
+class SendBookingCreatedNotificationJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, LogExecutionTrait;
 
     public function __construct(
         public Statement $statement,
         public User $user,
-        public User $admin,
         public StatementNotificationType $type,
     ) {}
 
@@ -35,10 +34,13 @@ class StatementRejectedNotificationJob implements ShouldQueue
      */
     public function handle(): void
     {
-        Log::info('Sending email user for statement rejected');
+        Log::info('Sending booking created notification to user', [
+            'user_id'      => $this->user->id,
+            'statement_id' => $this->statement->id,
+        ]);
 
         $factory = app(NotificationFactoryRegistry::class)->get($this->type);
 
-        $this->user->notify($factory->createNotification($this->statement, $this->user, $this->admin));
+        $this->user->notify($factory->createNotification($this->statement));
     }
 }

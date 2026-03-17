@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Listeners;
 
+use App\Data\StatementNotificationPayload\StatementNotificationPayload;
+use App\Enums\StatementNotificationType;
 use App\Events\StatementApproved;
-use App\Jobs\CreateBookingFromStatementJob;
+use App\Jobs\Dispatchers\StatementNotificationJobDispatcher;
 use Illuminate\Support\Facades\Log;
 
 class CreateBookingFromStatement
@@ -18,6 +20,10 @@ class CreateBookingFromStatement
             'status'       => $event->statement->status,
         ]);
 
-        CreateBookingFromStatementJob::dispatch($event->statement, $event->user);
+        app(StatementNotificationJobDispatcher::class)
+            ->dispatch(
+                StatementNotificationType::BOOKING_CREATED,
+                new StatementNotificationPayload($event->statement, $event->user),
+            );
     }
 }

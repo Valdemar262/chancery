@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
+use App\Data\StatementNotificationPayload\StatementNotificationPayload;
+use App\Enums\StatementNotificationType;
 use App\Events\BookingConflict;
+use App\Jobs\Dispatchers\StatementNotificationJobDispatcher;
 use App\Jobs\Traits\LogExecutionTrait;
 use App\Models\Booking;
 use App\Models\Statement;
 use App\Models\User;
-use App\Notifications\BookingCreatedNotification;
 use App\Services\BookingService\BookingService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -24,7 +26,7 @@ class CreateBookingFromStatementJob implements ShouldQueue
 
     public function __construct(
         public Statement $statement,
-        public User      $user,
+        public User $user,
     ) {}
 
     public function handle(BookingService $bookingService): void
@@ -42,6 +44,9 @@ class CreateBookingFromStatementJob implements ShouldQueue
             'end_time'    => $this->statement->date,
         ]);
 
-        $this->user->notify(new BookingCreatedNotification($this->statement));
+        app(StatementNotificationJobDispatcher::class)->dispatch(
+            StatementNotificationType::BOOKING_CREATED,
+            new StatementNotificationPayload($this->statement, $this->user),
+        );
     }
 }
