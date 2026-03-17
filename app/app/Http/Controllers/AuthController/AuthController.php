@@ -43,7 +43,11 @@ class AuthController extends Controller
 
     public function me(): JsonResponse
     {
-        return getSuccessResponse($this->authService->me());
+        $user = $this->authService->me();
+
+        return getSuccessResponse(array_merge($user->toArray(), [
+            'roles' => $user->getRoleNames()->toArray(),
+        ]));
     }
 
     public function refresh(Request $request): JsonResponse

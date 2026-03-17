@@ -15,17 +15,14 @@ Route::group(['middleware' => ['auth:api']], function () {
 
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
+    Route::get('/allStatements', [StatementController::class, 'getAllStatements']);
 
     Route::group(['middleware' => ['role:client']], function () {
-
-        Route::post('/logout', [AuthController::class, 'logout']);
-        Route::get('/me', [AuthController::class, 'me']);
 
         Route::get('/allUsers', [UserController::class, 'getAllUsers']);
         Route::get('/showUser/{user}', [UserController::class, 'showUser']);
         Route::put('/updateUser', [UserController::class, 'updateUser']);
 
-        Route::get('/allStatements', [StatementController::class, 'getAllStatements']);
         Route::get('/showStatement/{statement}', [StatementController::class, 'showStatement']);
         Route::post('/createStatement', [StatementController::class, 'createStatement']);
         Route::put('/updateStatement', [StatementController::class, 'updateStatement']);

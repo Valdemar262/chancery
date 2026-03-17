@@ -30,3 +30,5 @@ Chancery provides simple containerized infrastructure of `Laravel, Nginx, Postgr
 #### `php artisan l5-swagger:generate`.
 ### To view the documentation in your browser, go to:
 #### `http://localhost:8080/api/documentation`
+### 10) Launching the frontend:
+#### `cd app && npm run dev`.

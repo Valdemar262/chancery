@@ -120,7 +120,7 @@ class StatementService
 
             $user = User::query()->find($statement->user_id);
 
-            event(new StatementApproved($statement, $user));
+            event(new StatementApproved($statement, $user, $admin));
 
             return $this->statementServiceDataAdapter->createResponseStatementDTO($statement);
         } catch (Throwable $exception) {

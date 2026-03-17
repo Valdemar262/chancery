@@ -30,6 +30,13 @@ services:
       - 'host.docker.internal:host-gateway'
     environment:
       PHP_IDE_CONFIG: 'serverName=app'
+      BROADCAST_DRIVER: reverb
+      REVERB_HOST: reverb
+      REVERB_PORT: 6001
+      REVERB_APP_KEY: ${REVERB_APP_KEY}
+      REVERB_APP_SECRET: ${REVERB_APP_SECRET}
+      REVERB_APP_ID: ${REVERB_APP_ID}
+      REVERB_SCHEME: http
     networks:
       - chancery
 
@@ -119,6 +126,14 @@ services:
     depends_on:
       - app
       - redis
+    environment:
+      BROADCAST_DRIVER: reverb
+      REVERB_HOST: reverb
+      REVERB_PORT: 6001
+      REVERB_APP_KEY: ${REVERB_APP_KEY}
+      REVERB_APP_SECRET: ${REVERB_APP_SECRET}
+      REVERB_APP_ID: ${REVERB_APP_ID}
+      REVERB_SCHEME: http
     networks:
       - chancery
 
