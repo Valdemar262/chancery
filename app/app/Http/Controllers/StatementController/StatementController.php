@@ -7,7 +7,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Statement;
 use App\Services\StatementService\StatementService;
 use Illuminate\Http\JsonResponse;
+use phpDocumentor\Reflection\Exception;
 use Symfony\Component\HttpFoundation\Request;
+use Throwable;
 
 class StatementController extends Controller
 {
@@ -49,5 +51,43 @@ class StatementController extends Controller
     public function deleteStatement(int $id): JsonResponse
     {
         return getSuccessResponse($this->statementService->deleteStatement($id));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function submit(Statement $statement): JsonResponse
+    {
+        return getSuccessResponse(
+            $this->statementService->submitStatement(
+                $this->statementServiceDataAdapter->createResponseStatementDTO($statement),
+            ),
+        );
+    }
+
+    /**
+     * @throws Throwable
+     */
+    public function reject(Statement $statement): JsonResponse
+    {
+        return getSuccessResponse(
+            $this->statementService->rejectStatement(
+                $this->statementServiceDataAdapter->createResponseStatementDTO($statement),
+                auth()->user(),
+            ),
+        );
+    }
+
+    /**
+     * @throws Throwable
+     */
+    public function approve(Statement $statement): JsonResponse
+    {
+        return getSuccessResponse(
+            $this->statementService->approveStatement(
+                $this->statementServiceDataAdapter->createResponseStatementDTO($statement),
+                auth()->user(),
+            )
+        );
     }
 }

@@ -7,10 +7,14 @@ RUN apt update \
     && pecl install apcu \
     && docker-php-ext-enable apcu \
     && docker-php-ext-configure zip \
-    && docker-php-ext-install zip
+    && docker-php-ext-install zip \
+    && pecl install redis \
+    && docker-php-ext-enable redis
 
 RUN apt-get update && apt-get install -y libpq-dev \
     && docker-php-ext-install pdo pdo_pgsql pgsql
+
+RUN docker-php-ext-install pcntl
 
 COPY ./php.ini /usr/local/etc/php/conf.d/php.ini
 

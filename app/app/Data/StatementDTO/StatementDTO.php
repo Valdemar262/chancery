@@ -53,6 +53,9 @@ class StatementDTO extends BaseDTO
         public int|Optional $user_id,
         public int|Optional $number,
         public ?string      $date,
+        public ?string      $status,
+        public ?int         $resource_id,
+        public ?int         $approved_by,
     ) {
         parent::__construct();
     }
@@ -63,10 +66,13 @@ class StatementDTO extends BaseDTO
     public static function rules(): array
     {
         return [
-            'title' => ['required|min:5'],
-            'user_id' => ['required|int'],
-            'number' => ['required|int'],
-            'date' => ['date'],
+            'title'       => ['required|min:5'],
+            'user_id'     => ['required|int'],
+            'number'      => ['required|int'],
+            'date'        => ['date'],
+            'status'      => ['in:draft,submitted,approved,rejected'],
+            'resource_id' => ['nullable', 'int'],
+            'approved_by' => ['nullable', 'int'],
         ];
     }
 }

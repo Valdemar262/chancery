@@ -12,20 +12,22 @@ Route::post('/refresh', [AuthController::class, 'refresh']);
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::group(['middleware' => ['auth:api']], function () {
-    Route::group(['middleware' => ['role:client']], function () {
 
-        Route::post('/logout', [AuthController::class, 'logout']);
-        Route::get('/me', [AuthController::class, 'me']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/me', [AuthController::class, 'me']);
+    Route::get('/allStatements', [StatementController::class, 'getAllStatements']);
+
+    Route::group(['middleware' => ['role:client']], function () {
 
         Route::get('/allUsers', [UserController::class, 'getAllUsers']);
         Route::get('/showUser/{user}', [UserController::class, 'showUser']);
         Route::put('/updateUser', [UserController::class, 'updateUser']);
 
-        Route::get('/allStatements', [StatementController::class, 'getAllStatements']);
         Route::get('/showStatement/{statement}', [StatementController::class, 'showStatement']);
         Route::post('/createStatement', [StatementController::class, 'createStatement']);
         Route::put('/updateStatement', [StatementController::class, 'updateStatement']);
         Route::delete('/deleteStatement/{id}', [StatementController::class, 'deleteStatement']);
+        Route::put('/statement/submit/{statement}', [StatementController::class, 'submit']);
 
         Route::post('/resources', [ResourceController::class, 'createResources']);
         Route::get('/resources', [ResourceController::class, 'getAllResources']);
@@ -33,10 +35,11 @@ Route::group(['middleware' => ['auth:api']], function () {
         Route::get('/resources/{id}/bookings', [BookingController::class, 'getBookingsForResource']);
         Route::delete('/bookings/{id}', [BookingController::class, 'deleteBooking']);
     });
+
     Route::group(['middleware' => ['role:admin']], function () {
 
-        Route::post('/logout', [AuthController::class, 'logout']);
-        Route::get('/me', [AuthController::class, 'me']);
+        Route::put('/statement/reject/{statement}', [StatementController::class, 'reject']);
+        Route::put('/statement/approve/{statement}', [StatementController::class, 'approve']);
 
         Route::post('assignRole/{user}', [UserController::class, 'assignRole']);
         Route::post('removeRole/{user}', [UserController::class, 'removeRole']);

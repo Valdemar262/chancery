@@ -10,6 +10,7 @@ use App\Data\RefreshTokenResponseDTO\RefreshTokenResponseDTO;
 use App\Data\RegisterDTO\RegisterDTO;
 use App\DataAdapters\AuthServiceDataAdapter\AuthServiceDataAdapter;
 use App\DataAdapters\UserServiceDataAdapter\UserServiceDataAdapter;
+use App\Models\User;
 use App\Repositories\UserRepository\UserRepository;
 use App\Services\UserService\UserService;
 use Illuminate\Contracts\Auth\Authenticatable;
@@ -51,7 +52,7 @@ class AuthService
         return $this->oauthClient->refreshToken($refreshTokenDTO);
     }
 
-    public function me(): Authenticatable
+    public function me(): Authenticatable|User
     {
         return auth()->user();
     }
