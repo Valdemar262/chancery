@@ -1,5 +1,7 @@
 <?php
 
+declare (strict_types = 1);
+
 namespace App\Services\StatementService;
 
 use App\Data\AllStatementsDTO\AllStatementsDTO;
@@ -7,27 +9,21 @@ use App\Data\StatementDTO\StatementDTO;
 use App\DataAdapters\StatementServiceDataAdapter\StatementServiceDataAdapter;
 use App\Enums\ErrorMessages;
 use App\Enums\ResponseMessages;
-use app\Enums\StatementStatus;
-use App\Events\StatementApproved;
-use App\Events\StatementRejected;
-use App\Events\StatementSubmitted;
-use App\Models\Resource;
+use App\Enums\StatusTransitionType;
+use App\Exceptions\InvalidStatusTransitionException;
 use App\Models\Statement;
 use App\Models\User;
 use App\Repositories\StatementRepository\StatementRepository;
-use App\Services\RoleAndPermissionService\RoleAndPermissionChecker;
+use App\Services\StatementService\Strategies\StatusTransitionStrategyResolver;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Support\Facades\Log;
-use phpDocumentor\Reflection\Exception;
-use Illuminate\Contracts\Auth\Authenticatable;
 use Throwable;
 
-class StatementService
+readonly class StatementService
 {
     public function __construct(
-        private readonly StatementServiceDataAdapter $statementServiceDataAdapter,
-        private readonly StatementRepository         $statementRepository,
-        private readonly RoleAndPermissionChecker    $roleAndPermissionChecker,
+        private StatementServiceDataAdapter      $statementServiceDataAdapter,
+        private StatementRepository              $statementRepository,
+        private StatusTransitionStrategyResolver $strategyResolver,
     ) {}
 
     public function createStatement(StatementDTO $statementDTO): Statement
@@ -70,97 +66,19 @@ class StatementService
     }
 
     /**
-     * @throws Exception
+     * @throws InvalidStatusTransitionException
      */
-    public function submitStatement(StatementDTO $statementDTO): StatementDTO
+    public function transitionStatus(StatementDTO $dto, StatusTransitionType $type, ?User $actor = null): StatementDTO
     {
-        try {
-            $this->statementRepository->updateStatement(
-                $this->statementServiceDataAdapter->createForSubmitStatementDTO($statementDTO),
-            );
+        $statement = $this->statementRepository->findById($dto->id);
+        $strategy = $this->strategyResolver->resolve($type);
 
-            event(new StatementSubmitted($this->statementRepository->findById($statementDTO->id)));
-
-            return $this->statementServiceDataAdapter->createResponseStatementDTO(
-                $this->statementRepository->findById($statementDTO->id)
-            );
-        } catch (Throwable $exception) {
-            Log::error($exception);
-            throw new Exception($exception->getMessage());
+        if (!$strategy->canTransition($statement, $actor)) {
+            throw new InvalidStatusTransitionException('Strategy can`t transit statement status');
         }
-    }
 
-    /**
-     * @throws Throwable
-     */
-    public function approveStatement(StatementDTO $statementDTO, Authenticatable|User $admin): StatementDTO
-    {
-        $this->roleAndPermissionChecker->hasAdminRole($admin);
+        $statement = $strategy->execute($statement, $actor);
 
-        Log::info('User pass verification role admin');
-
-        try {
-            $resource = Resource::query()
-                ->where('name', '=', $statementDTO->title)
-                ->first();
-
-            if (!$resource) {
-                throw new ModelNotFoundException(
-                    ErrorMessages::RESOURCE_NOT_FOUND . ' with the name ' . $statementDTO->title
-                );
-            }
-
-            $statement = $this->statementRepository->findById($statementDTO->id);
-
-            $statement->update([
-                'resource_id' => $resource->id,
-                'status'      => StatementStatus::APPROVED->value,
-                'approved_by' => $admin->id,
-            ]);
-
-            $user = User::query()->find($statement->user_id);
-
-            event(new StatementApproved($statement, $user, $admin));
-
-            return $this->statementServiceDataAdapter->createResponseStatementDTO($statement);
-        } catch (Throwable $exception) {
-            Log::error($exception);
-            return throw $exception;
-        }
-    }
-
-    /**
-     * @throws Throwable
-     */
-    public function rejectStatement(StatementDTO $statementDTO, Authenticatable|User $admin): StatementDTO
-    {
-        $this->roleAndPermissionChecker->hasAdminRole($admin);
-
-        try {
-            $resource = Resource::query()
-                ->where('name', '=', $statementDTO->title)
-                ->first();
-
-            if (!$resource) {
-                throw new ModelNotFoundException(
-                    ErrorMessages::RESOURCE_NOT_FOUND . ' with the name ' . $statementDTO->title
-                );
-            }
-
-            $statement = $this->statementRepository->findById($statementDTO->id);
-
-            $statement->update([
-                'status' => StatementStatus::REJECTED->value,
-            ]);
-
-            $user = User::query()->find($statement->user_id);
-
-            event(new StatementRejected($statement, $user, $admin));
-
-            return $this->statementServiceDataAdapter->createResponseStatementDTO($statement);
-        } catch (Throwable $exception) {
-            Log::error($exception);
-            return throw $exception;
-        }
+        return $this->statementServiceDataAdapter->createResponseStatementDTO($statement);
     }
 }

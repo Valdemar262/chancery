@@ -21,6 +21,6 @@ class RoleAndPermissionChecker
             return true;
         }
 
-        throw new ForbiddenException('User does not have admin role');
+        return false;
     }
 }
