@@ -2,7 +2,11 @@
 
 namespace App\Providers;
 
+use App\Enums\StatusTransitionType;
 use App\Jobs\Dispatchers\StatementNotificationJobDispatcher;
+use App\Services\StatementService\Strategies\AdminApproveTransitionStrategy;
+use App\Services\StatementService\Strategies\AdminRejectTransitionStrategy;
+use App\Services\StatementService\Strategies\ClientSubmitTransitionStrategy;
 use Database\Seeders\EntityFactory\EntitySeedFactory;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Passport\Passport;
@@ -16,6 +20,18 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->singleton(StatementNotificationJobDispatcher::class);
         $this->app->singleton(EntitySeedFactory::class);
+        $this->app->singleton(
+            'status_transition.' . StatusTransitionType::SUBMIT->value,
+            ClientSubmitTransitionStrategy::class,
+        );
+        $this->app->singleton(
+            'status_transition.' . StatusTransitionType::APPROVE->value,
+            AdminApproveTransitionStrategy::class,
+        );
+        $this->app->singleton(
+            'status_transition.' . StatusTransitionType::REJECT->value,
+            AdminRejectTransitionStrategy::class,
+        );
     }
 
     /**

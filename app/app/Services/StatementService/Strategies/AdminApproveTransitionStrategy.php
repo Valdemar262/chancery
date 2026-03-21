@@ -7,9 +7,10 @@ namespace App\Services\StatementService\Strategies;
 use app\Enums\StatementStatus;
 use App\Events\StatementApproved;
 use App\Exceptions\ForbiddenException;
-use App\Models\Resource;
 use App\Models\Statement;
 use App\Models\User;
+use App\Repositories\ResourceRepository\ResourceRepository;
+use App\Repositories\UserRepository\UserRepository;
 use App\Services\RoleAndPermissionService\RoleAndPermissionChecker;
 use App\Services\StatementService\Strategies\Contracts\StatusTransitionStrategyInterface;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -18,6 +19,8 @@ readonly class AdminApproveTransitionStrategy implements StatusTransitionStrateg
 {
     public function __construct(
         private RoleAndPermissionChecker $roleChecker,
+        private UserRepository           $userRepository,
+        private ResourceRepository       $resourceRepository,
     ) {}
 
     public function canTransition(Statement $statement, ?User $actor = null): bool
@@ -35,7 +38,7 @@ readonly class AdminApproveTransitionStrategy implements StatusTransitionStrateg
 
     public function execute(Statement $statement, ?User $actor = null): Statement
     {
-        $resource = Resource::query()->where('name', $statement->title)->first();
+        $resource = $this->resourceRepository->findByField('name', $statement->title);
 
         if (!$resource) {
             throw new ModelNotFoundException('Resource not found with name: ' . $statement->title);
@@ -49,7 +52,7 @@ readonly class AdminApproveTransitionStrategy implements StatusTransitionStrateg
 
         $statement = $statement->fresh();
 
-        $user = User::query()->find($statement->user_id);
+        $user = $this->userRepository->findById($statement->user_id);
 
         event(new StatementApproved($statement, $user, $actor));
 

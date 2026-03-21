@@ -9,6 +9,7 @@ use App\Events\StatementRejected;
 use App\Exceptions\ForbiddenException;
 use App\Models\Statement;
 use App\Models\User;
+use App\Repositories\UserRepository\UserRepository;
 use App\Services\RoleAndPermissionService\RoleAndPermissionChecker;
 use App\Services\StatementService\Strategies\Contracts\StatusTransitionStrategyInterface;
 
@@ -16,6 +17,7 @@ readonly class AdminRejectTransitionStrategy implements StatusTransitionStrategy
 {
     public function __construct(
         private RoleAndPermissionChecker $roleChecker,
+        private UserRepository           $userRepository,
     ) {}
 
     public function canTransition(Statement $statement, ?User $actor = null): bool
@@ -33,14 +35,14 @@ readonly class AdminRejectTransitionStrategy implements StatusTransitionStrategy
 
     public function execute(Statement $statement, ?User $actor = null): Statement
     {
-        $statement->update([
-            'status' => StatementStatus::REJECTED->value,
-        ]);
+        $statement->update(['status' => StatementStatus::REJECTED->value]);
 
-        $user = User::query()->find($statement->user_id);
+        $statement = $statement->fresh();
 
-        event(new StatementRejected($statement->fresh(), $user, $actor));
+        $user = $this->userRepository->findById($statement->user_id);
 
-        return $statement->fresh();
+        event(new StatementRejected($statement, $user, $actor));
+
+        return $statement;
     }
 }

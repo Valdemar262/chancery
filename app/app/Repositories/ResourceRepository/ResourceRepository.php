@@ -5,6 +5,7 @@ namespace App\Repositories\ResourceRepository;
 use App\Data\ResourceDTO\ResourceDTO;
 use App\Models\Resource;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 
 class ResourceRepository
 {
@@ -21,5 +22,10 @@ class ResourceRepository
     public function getResourceById(int $id): Resource
     {
         return Resource::findOrFail($id);
+    }
+
+    public function findByField(string $field, string|int $value): Resource|Model|null
+    {
+        return Resource::query()->where($field, '=', $value)->first();
     }
 }
