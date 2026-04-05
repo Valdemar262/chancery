@@ -9,19 +9,22 @@ use App\DataAdapters\StatementServiceDataAdapter\StatementDataAdapter;
 use App\Enums\ReportPeriod;
 use app\Enums\StatementStatus;
 use App\Exceptions\MailSendException;
-use App\Models\Booking;
-use App\Models\Statement;
+use App\Repositories\BookingRepository\BookingRepository;
+use App\Repositories\StatementRepository\StatementRepository;
+use App\Repositories\UserStatementBookingRepository\UserStatementBookingRepository;
 use App\Services\MailService\MailService;
-use Illuminate\Support\Facades\DB;
 use App\DataAdapters\UserServiceDataAdapter\UserDataAdapter;
 
 readonly class ReportService
 {
     public function __construct(
-        private StatementDataAdapter $statementDataAdapter,
-        private MailService          $mailService,
-        private BookingDataAdaptor   $bookingDataAdapter,
-        private UserDataAdapter      $userDataAdapter,
+        private StatementDataAdapter           $statementDataAdapter,
+        private MailService                    $mailService,
+        private BookingDataAdaptor             $bookingDataAdapter,
+        private UserDataAdapter                $userDataAdapter,
+        private StatementRepository            $statementRepository,
+        private BookingRepository              $bookingRepository,
+        private UserStatementBookingRepository $userStatementBookingRepository,
     ) {}
 
     /**
@@ -29,15 +32,7 @@ readonly class ReportService
      */
     public function statementsSummary(ReportPeriod $period): void
     {
-        $query = Statement::query();
-
-        if ($startDate = $period->getStartDate()) {
-            $query->where('created_at', '>=', $startDate);
-        }
-
-        $result = $query->selectRaw('status, count(*) as count')
-            ->groupBy('status')
-            ->get();
+        $result = $this->statementRepository->getSummaryByPeriod($period);
 
         $counts = collect(StatementStatus::cases())
             ->mapWithKeys(fn(StatementStatus $s) => [$s->value => 0])
@@ -55,11 +50,7 @@ readonly class ReportService
      */
     public function bookingsByResource(): void
     {
-        $groupBooking = Booking::query()
-            ->join('resources', 'bookings.resource_id', '=', 'resources.id')
-            ->selectRaw('resource_id, resources.name as resource_name, count(*) as count')
-            ->groupBy('resource_id', 'resources.name')
-            ->get();
+        $groupBooking = $this->bookingRepository->getGroupBookingByResource();
 
         $data = $this->bookingDataAdapter->createBookingsByResourceDTOFromCollection($groupBooking);
 
@@ -71,19 +62,7 @@ readonly class ReportService
      */
     public function userActivity(): void
     {
-        $userActivity = DB::table('users')
-            ->leftJoin('statements', 'statements.user_id', '=', 'users.id')
-            ->leftJoin('bookings', 'bookings.user_id', '=', 'users.id')
-            ->select(
-                'users.id as user_id',
-                'users.name as user_name',
-                'users.email as user_email',
-                DB::raw('COUNT(DISTINCT statements.id) as statements_count'),
-                DB::raw('COUNT(DISTINCT bookings.id) as bookings_count')
-            )
-            ->groupBy('users.id', 'users.name', 'users.email')
-            ->orderByRaw('COUNT(DISTINCT statements.id) + COUNT(DISTINCT bookings.id) DESC')
-            ->get();
+        $userActivity = $this->userStatementBookingRepository->getUserActivityByStatementForBooking();
 
         $data = $this->userDataAdapter->createUserActivityDTOByObject($userActivity);
 
@@ -95,17 +74,7 @@ readonly class ReportService
      */
     public function statementsTrend(ReportPeriod $period): void
     {
-        $query = Statement::query();
-
-        if ($startDate = $period->getStartDate()) {
-            $query->where('created_at', '>=', $startDate);
-        }
-
-        $result = $query
-            ->selectRaw("TO_CHAR(created_at, 'YYYY-MM') as period, count(*) as count")
-            ->groupByRaw("TO_CHAR(created_at, 'YYYY-MM')")
-            ->orderByRaw('1')
-            ->get();
+        $result = $this->statementRepository->getTrendByPeriod($period);
 
         $data = $this->statementDataAdapter->createStatementsTrendDTOsFromCollection($result);
 
