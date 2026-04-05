@@ -19,9 +19,7 @@ class ClientSubmitTransitionStrategy implements StatusTransitionStrategyInterfac
 
     public function execute(Statement $statement, ?User $actor = null): Statement
     {
-        $statement->update([
-            'status' => StatementStatus::SUBMITTED->value,
-        ]);
+        $statement->submit();
 
         event(new StatementSubmitted($statement->fresh()));
 

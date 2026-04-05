@@ -64,4 +64,9 @@ class StatementRepository
             ->orderByRaw('1')
             ->get();
     }
+
+    public function createByArray(array $data): Statement
+    {
+        return Statement::query()->create($data);
+    }
 }

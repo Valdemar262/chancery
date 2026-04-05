@@ -1,10 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\StatementController;
 
 use App\DataAdapters\StatementServiceDataAdapter\StatementServiceDataAdapter;
 use App\Enums\StatusTransitionType;
-use App\Exceptions\InvalidStatusTransitionException;
 use App\Http\Controllers\Controller;
 use App\Models\Statement;
 use App\Services\StatementService\StatementService;
@@ -55,7 +56,7 @@ class StatementController extends Controller
     }
 
     /**
-     * @throws InvalidStatusTransitionException
+     * @throws Throwable
      */
     public function submit(Statement $statement): JsonResponse
     {

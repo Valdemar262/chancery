@@ -1,9 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Providers;
 
+use App\CustomObservers\CustomStatementObserver;
 use App\Enums\StatusTransitionType;
 use App\Jobs\Dispatchers\StatementNotificationJobDispatcher;
+use App\Models\Statement;
 use App\Services\StatementService\Strategies\AdminApproveTransitionStrategy;
 use App\Services\StatementService\Strategies\AdminRejectTransitionStrategy;
 use App\Services\StatementService\Strategies\ClientSubmitTransitionStrategy;
@@ -43,5 +47,6 @@ class AppServiceProvider extends ServiceProvider
         Passport::refreshTokensExpireIn(now()->addDays(30));
         Passport::personalAccessTokensExpireIn(now()->addMonths(6));
         Passport::enablePasswordGrant();
+        Statement::observeDomain(CustomStatementObserver::class);
     }
 }

@@ -44,11 +44,7 @@ readonly class AdminApproveTransitionStrategy implements StatusTransitionStrateg
             throw new ModelNotFoundException('Resource not found with name: ' . $statement->title);
         }
 
-        $statement->update([
-            'resource_id' => $resource->id,
-            'status'      => StatementStatus::APPROVED->value,
-            'approved_by' => $actor->id,
-        ]);
+        $statement->approve($resource->id, $actor->id);
 
         $statement = $statement->fresh();
 

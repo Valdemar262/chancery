@@ -35,7 +35,7 @@ readonly class AdminRejectTransitionStrategy implements StatusTransitionStrategy
 
     public function execute(Statement $statement, ?User $actor = null): Statement
     {
-        $statement->update(['status' => StatementStatus::REJECTED->value]);
+        $statement->reject();
 
         $statement = $statement->fresh();
 

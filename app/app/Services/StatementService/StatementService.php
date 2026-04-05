@@ -17,6 +17,7 @@ use App\Repositories\StatementRepository\StatementRepository;
 use App\Services\StatementService\Strategies\StatusTransitionStrategyResolver;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Throwable;
+use Illuminate\Contracts\Container\BindingResolutionException;
 
 readonly class StatementService
 {
@@ -28,7 +29,7 @@ readonly class StatementService
 
     public function createStatement(StatementDTO $statementDTO): Statement
     {
-        return Statement::create($statementDTO->toArray());
+        return $this->statementRepository->createByArray($statementDTO->toArray());
     }
 
     public function allStatements(): AllStatementsDTO
@@ -66,7 +67,7 @@ readonly class StatementService
     }
 
     /**
-     * @throws InvalidStatusTransitionException
+     * @throws InvalidStatusTransitionException|BindingResolutionException
      */
     public function transitionStatus(StatementDTO $dto, StatusTransitionType $type, ?User $actor = null): StatementDTO
     {
