@@ -7,6 +7,7 @@ namespace App\Jobs;
 use App\Data\StatementNotificationPayload\StatementNotificationPayload;
 use App\Enums\StatementNotificationType;
 use App\Events\BookingConflict;
+use App\Exceptions\NotFoundException;
 use App\Jobs\Dispatchers\StatementNotificationJobDispatcher;
 use App\Jobs\Traits\LogExecutionTrait;
 use App\Models\Booking;
@@ -14,6 +15,7 @@ use App\Models\Statement;
 use App\Models\User;
 use App\Services\BookingService\BookingService;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -26,9 +28,13 @@ class CreateBookingFromStatementJob implements ShouldQueue
 
     public function __construct(
         public Statement $statement,
-        public User $user,
+        public User      $user,
     ) {}
 
+    /**
+     * @throws BindingResolutionException
+     * @throws NotFoundException
+     */
     public function handle(BookingService $bookingService): void
     {
         if ($bookingService->hasConflictProcessCreateBooking($this->statement)) {

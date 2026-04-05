@@ -6,53 +6,31 @@ namespace App\Jobs\Dispatchers;
 
 use App\Data\StatementNotificationPayload\StatementNotificationPayload;
 use App\Enums\StatementNotificationType;
-use App\Jobs\BookingConflictNotificationJob;
-use App\Jobs\SendBookingCreatedNotificationJob;
-use App\Jobs\SendStatementApprovedNotificationJob;
-use App\Jobs\SendStatementSubmittedNotificationJob;
-use App\Jobs\StatementRejectedNotificationJob;
-use App\Models\User;
+use App\Exceptions\NotFoundException;
+use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Contracts\Container\Container;
+use RuntimeException;
 
-class StatementNotificationJobDispatcher
+readonly class StatementNotificationJobDispatcher
 {
+    public function __construct(
+        private Container $container,
+    ) {}
+
+    /**
+     * @throws NotFoundException
+     * @throws BindingResolutionException
+     */
     public function dispatch(StatementNotificationType $type, StatementNotificationPayload $payload): void
     {
-        match ($type) {
-            StatementNotificationType::SUBMITTED => $this->dispatchToAdmins($payload),
-            StatementNotificationType::APPROVED => SendStatementApprovedNotificationJob::dispatch(
-                user: $payload->user,
-                statementId: $payload->statement->id,
-                type: StatementNotificationType::APPROVED,
-            ),
-            StatementNotificationType::REJECTED => StatementRejectedNotificationJob::dispatch(
-                statement: $payload->statement,
-                user: $payload->user,
-                admin: $payload->admin,
-                type: StatementNotificationType::REJECTED,
-            ),
-            StatementNotificationType::BOOKING_CONFLICT => BookingConflictNotificationJob::dispatch(
-                statementId: $payload->statement->id,
-                userId: $payload->user->id,
-                type: StatementNotificationType::BOOKING_CONFLICT,
-            ),
-            StatementNotificationType::BOOKING_CREATED => SendBookingCreatedNotificationJob::dispatch(
-                statement: $payload->statement,
-                user: $payload->user,
-                type: StatementNotificationType::BOOKING_CREATED,
-            ),
-        };
-    }
+        $map = config('statement_notifications');
 
-    public function dispatchToAdmins(StatementNotificationPayload $payload): void
-    {
-        $admins = User::role('admin')->get();
+        $handlerClass = $map[$type->value];
 
-        foreach ($admins as $admin) {
-            SendStatementSubmittedNotificationJob::dispatch(
-                adminId: $admin->id,
-                statementId: $payload->statement->id,
-                type: StatementNotificationType::SUBMITTED,
-            );
+        if (!class_exists($handlerClass)) {
+            throw new RuntimeException("Handler not found for type $type->value");
         }
+
+        $this->container->make($handlerClass)->handle($payload);
     }
 }
