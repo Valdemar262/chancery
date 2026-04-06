@@ -23,7 +23,7 @@ Route::group(['middleware' => ['auth:api']], function () {
         Route::get('/showUser/{user}', [UserController::class, 'showUser']);
         Route::put('/updateUser', [UserController::class, 'updateUser']);
 
-        Route::get('/showStatement/{statement}', [StatementController::class, 'showStatement']);
+        Route::get('/showStatement/{id}', [StatementController::class, 'showStatement'])->whereNumber('id');
         Route::post('/createStatement', [StatementController::class, 'createStatement']);
         Route::put('/updateStatement', [StatementController::class, 'updateStatement']);
         Route::delete('/deleteStatement/{id}', [StatementController::class, 'deleteStatement']);

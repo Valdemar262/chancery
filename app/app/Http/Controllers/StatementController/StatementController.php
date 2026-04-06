@@ -35,13 +35,16 @@ class StatementController extends Controller
         );
     }
 
-    public function showStatement(Statement $statement): JsonResponse
+    public function showStatement(int $id): JsonResponse
     {
         return getSuccessResponse(
-            $this->statementServiceDataAdapter->createResponseStatementDTO($statement)
+            $this->statementService->showStatement($id),
         );
     }
 
+    /**
+     * @throws Throwable
+     */
     public function updateStatement(Request $request): JsonResponse
     {
         return getSuccessResponse(

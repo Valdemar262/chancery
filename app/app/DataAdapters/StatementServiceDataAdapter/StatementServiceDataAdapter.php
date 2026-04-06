@@ -100,4 +100,9 @@ class StatementServiceDataAdapter
             'approved_by' => $statementDTO->approved_by,
         ]);
     }
+
+    public function createStatementDTOByArray(array $data): StatementDTO
+    {
+        return StatementDTO::validateAndCreate($data);
+    }
 }

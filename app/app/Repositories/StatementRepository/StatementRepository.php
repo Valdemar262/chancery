@@ -13,7 +13,7 @@ use Spatie\LaravelData\Optional;
 
 class StatementRepository
 {
-    public function findById(int|Optional $id): Statement
+    public function findById(int|Optional $id): ?Statement
     {
         return Statement::find($id);
     }
