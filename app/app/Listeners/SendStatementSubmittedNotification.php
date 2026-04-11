@@ -1,21 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Listeners;
 
+use App\Data\StatementNotificationPayload\StatementNotificationPayload;
+use App\Enums\StatementNotificationType;
 use App\Events\StatementSubmitted;
-use App\Jobs\SendStatementSubmittedNotificationJob;
-use App\Models\User;
+use App\Exceptions\NotFoundException;
+use App\Jobs\Dispatchers\StatementNotificationJobDispatcher;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Facades\Log;
 
 class SendStatementSubmittedNotification
 {
     /**
-     * Create the event listener.
-     */
-    public function __construct() {}
-
-    /**
-     * Handle the event.
+     * @throws BindingResolutionException
+     * @throws NotFoundException
      */
     public function handle(StatementSubmitted $event): void
     {
@@ -23,13 +24,9 @@ class SendStatementSubmittedNotification
             'statement_id' => $event->statement->id,
         ]);
 
-        $admins = User::role('admin')->get();
-
-        foreach ($admins as $admin) {
-            SendStatementSubmittedNotificationJob::dispatch(
-                adminId: $admin->id,
-                statementId: $event->statement->id,
-            );
-        }
+        app(StatementNotificationJobDispatcher::class)->dispatch(
+            StatementNotificationType::SUBMITTED,
+            new StatementNotificationPayload($event->statement),
+        );
     }
 }

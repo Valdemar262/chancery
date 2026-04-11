@@ -1,13 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\StatementController;
 
 use App\DataAdapters\StatementServiceDataAdapter\StatementServiceDataAdapter;
+use App\Enums\StatusTransitionType;
+use App\Exceptions\CollectionEmptyException;
 use App\Http\Controllers\Controller;
 use App\Models\Statement;
 use App\Services\StatementService\StatementService;
 use Illuminate\Http\JsonResponse;
-use phpDocumentor\Reflection\Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Throwable;
 
@@ -26,6 +29,9 @@ class StatementController extends Controller
             ));
     }
 
+    /**
+     * @throws CollectionEmptyException
+     */
     public function getAllStatements(): JsonResponse
     {
         return getSuccessResponse(
@@ -33,13 +39,16 @@ class StatementController extends Controller
         );
     }
 
-    public function showStatement(Statement $statement): JsonResponse
+    public function showStatement(int $id): JsonResponse
     {
         return getSuccessResponse(
-            $this->statementServiceDataAdapter->createResponseStatementDTO($statement)
+            $this->statementService->showStatement($id),
         );
     }
 
+    /**
+     * @throws Throwable
+     */
     public function updateStatement(Request $request): JsonResponse
     {
         return getSuccessResponse(
@@ -50,17 +59,20 @@ class StatementController extends Controller
 
     public function deleteStatement(int $id): JsonResponse
     {
-        return getSuccessResponse($this->statementService->deleteStatement($id));
+        return getSuccessResponse(
+            $this->statementService->deleteStatement($id),
+        );
     }
 
     /**
-     * @throws Exception
+     * @throws Throwable
      */
     public function submit(Statement $statement): JsonResponse
     {
         return getSuccessResponse(
-            $this->statementService->submitStatement(
+            $this->statementService->transitionStatus(
                 $this->statementServiceDataAdapter->createResponseStatementDTO($statement),
+                StatusTransitionType::SUBMIT,
             ),
         );
     }
@@ -71,8 +83,9 @@ class StatementController extends Controller
     public function reject(Statement $statement): JsonResponse
     {
         return getSuccessResponse(
-            $this->statementService->rejectStatement(
+            $this->statementService->transitionStatus(
                 $this->statementServiceDataAdapter->createResponseStatementDTO($statement),
+                StatusTransitionType::REJECT,
                 auth()->user(),
             ),
         );
@@ -84,8 +97,9 @@ class StatementController extends Controller
     public function approve(Statement $statement): JsonResponse
     {
         return getSuccessResponse(
-            $this->statementService->approveStatement(
+            $this->statementService->transitionStatus(
                 $this->statementServiceDataAdapter->createResponseStatementDTO($statement),
+                StatusTransitionType::APPROVE,
                 auth()->user(),
             )
         );

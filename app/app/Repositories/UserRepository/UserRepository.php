@@ -29,4 +29,9 @@ class UserRepository
     {
         return User::where('email', $email)->first();
     }
+
+    public function getFirstAdmin(): ?User
+    {
+        return User::role('admin')->first();
+    }
 }

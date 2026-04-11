@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\DataAdapters\StatementServiceDataAdapter;
 
 use App\Data\AllStatementsDTO\AllStatementsDTO;
@@ -28,11 +30,11 @@ class StatementServiceDataAdapter
         ?string $date,
     ): StatementDTO {
         return StatementDTO::validateAndCreate([
-            'title' => $title,
+            'title'   => $title,
             'user_id' => $user_id,
-            'number' => $number,
-            'date' => $date,
-            'status' => StatementStatus::DRAFT->value,
+            'number'  => $number,
+            'date'    => $date,
+            'status'  => StatementStatus::DRAFT->value,
         ]);
     }
 
@@ -69,11 +71,11 @@ class StatementServiceDataAdapter
         string $date,
     ): StatementDTO {
         return StatementDTO::validateAndCreate([
-            'id' => $id,
-            'title' => $title,
+            'id'      => $id,
+            'title'   => $title,
             'user_id' => $user_id,
-            'number' => $number,
-            'date' => $date,
+            'number'  => $number,
+            'date'    => $date,
         ]);
     }
 
@@ -99,5 +101,10 @@ class StatementServiceDataAdapter
             'resource_id' => $statementDTO->resource_id,
             'approved_by' => $statementDTO->approved_by,
         ]);
+    }
+
+    public function createStatementDTOByArray(array $data): StatementDTO
+    {
+        return StatementDTO::validateAndCreate($data);
     }
 }
