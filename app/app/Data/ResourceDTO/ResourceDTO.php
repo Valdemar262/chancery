@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Data\ResourceDTO;
 
 use App\Data\BaseDTO\BaseDTO;
@@ -7,9 +9,9 @@ use App\Data\BaseDTO\BaseDTO;
 class ResourceDTO extends BaseDTO
 {
     public function __construct(
-        public ?int $id,
-        public string $name,
-        public string $type,
+        public ?int    $id,
+        public string  $name,
+        public string  $type,
         public ?string $description,
     ) {
         parent::__construct();

@@ -17,18 +17,21 @@ readonly class CustomStatementObserver
     public function approved(Statement $statement): void
     {
         $this->statementEntityCache->forget($statement->id);
+        $this->statementEntityCache->forgetAll();
         Log::info('Statement observer execute method: approved');
     }
 
     public function submitted(Statement $statement): void
     {
         $this->statementEntityCache->forget($statement->id);
+        $this->statementEntityCache->forgetAll();
         Log::info('Statement observer execute method: submitted');
     }
 
     public function rejected(Statement $statement): void
     {
         $this->statementEntityCache->forget($statement->id);
+        $this->statementEntityCache->forgetAll();
         Log::info('Statement observer execute method: rejected');
     }
 }

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Repositories\StatementRepository;
 
-use App\Data\StatementDTO\StatementDTO;
 use App\Enums\ReportPeriod;
 use App\Models\Statement;
 use Illuminate\Database\Eloquent\Collection;
@@ -31,10 +30,9 @@ class StatementRepository
         return Statement::destroy($id);
     }
 
-    public function updateStatement(StatementDTO $statementDTO): bool
+    public function update(Statement $statement, array $data): bool
     {
-        return $this->findById($statementDTO->id)
-            ->update($statementDTO->toArray());
+        return $statement->update($data);
     }
 
     public function getSummaryByPeriod(ReportPeriod $period): SupportCollection

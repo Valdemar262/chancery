@@ -7,11 +7,11 @@ namespace App\Exceptions;
 use Exception;
 use Throwable;
 
-class MailSendException extends Exception
+class CollectionEmptyException extends Exception
 {
     public function __construct(
-        string     $message = 'Ошибка отправки письма',
-        int        $code = 0,
+        string     $message = 'Collection entities is empty',
+        int        $code = 400,
         ?Throwable $previous = null,
     ) {
         parent::__construct($message, $code, $previous);

@@ -29,8 +29,9 @@ Route::group(['middleware' => ['auth:api']], function () {
         Route::delete('/deleteStatement/{id}', [StatementController::class, 'deleteStatement']);
         Route::put('/statement/submit/{statement}', [StatementController::class, 'submit']);
 
-        Route::post('/resources', [ResourceController::class, 'createResources']);
         Route::get('/resources', [ResourceController::class, 'getAllResources']);
+        Route::get('/showResources/{id}', [ResourceController::class, 'showResources'])->whereNumber('id');
+        Route::delete('/resources/{id}', [ResourceController::class, 'deleteResource']);
         Route::post('/bookings', [BookingController::class, 'createBooking']);
         Route::get('/resources/{id}/bookings', [BookingController::class, 'getBookingsForResource']);
         Route::delete('/bookings/{id}', [BookingController::class, 'deleteBooking']);
@@ -40,6 +41,9 @@ Route::group(['middleware' => ['auth:api']], function () {
 
         Route::put('/statement/reject/{statement}', [StatementController::class, 'reject']);
         Route::put('/statement/approve/{statement}', [StatementController::class, 'approve']);
+
+        Route::post('/resources', [ResourceController::class, 'createResources']);
+        Route::put('/updateResource', [ResourceController::class, 'updateResource']);
 
         Route::post('assignRole/{user}', [UserController::class, 'assignRole']);
         Route::post('removeRole/{user}', [UserController::class, 'removeRole']);

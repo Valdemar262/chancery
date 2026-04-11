@@ -11,6 +11,7 @@ use App\DataAdapters\StatementServiceDataAdapter\StatementServiceDataAdapter;
 use App\Enums\ErrorMessages;
 use App\Enums\ResponseMessages;
 use App\Enums\StatusTransitionType;
+use App\Exceptions\CollectionEmptyException;
 use App\Exceptions\InvalidStatusTransitionException;
 use App\Exceptions\ServerException;
 use App\Models\Statement;
@@ -18,6 +19,7 @@ use App\Models\User;
 use App\Repositories\StatementRepository\StatementRepository;
 use App\Services\StatementService\Strategies\StatusTransitionStrategyResolver;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 use Illuminate\Contracts\Container\BindingResolutionException;
@@ -34,9 +36,7 @@ readonly class StatementService
     public function createStatement(StatementDTO $statementDTO): Statement
     {
         $statement = $this->statementRepository->createByArray($statementDTO->toArray());
-
         $statementDTO = $this->statementServiceDataAdapter->createResponseStatementDTO($statement);
-
         $this->statementEntityCache->put($statementDTO->id, $statementDTO->toArray());
 
         return $statement;
@@ -46,32 +46,44 @@ readonly class StatementService
     {
         $cacheStatement = $this->statementEntityCache->get($id);
 
-        if ($cacheStatement === null) {
+        if (!$cacheStatement) {
             $statement = $this->statementRepository->findById($id);
 
-            if ($statement === null) {
-                throw new ModelNotFoundException('Statement not found');
+            if (!$statement) {
+                throw new ModelNotFoundException(ErrorMessages::STATEMENT_NOT_FOUND);
             }
 
             $statementDTO = $this->statementServiceDataAdapter->createResponseStatementDTO($statement);
-            $this->statementEntityCache->put($statementDTO->id, $statementDTO->toArray());
-
+            $this->statementEntityCache->put($id, $statementDTO->toArray());
             return $statementDTO;
         }
 
         return $this->statementServiceDataAdapter->createStatementDTOByArray($cacheStatement);
     }
 
+    /**
+     * @throws CollectionEmptyException
+     */
     public function allStatements(): AllStatementsDTO
     {
-        return $this->statementServiceDataAdapter->createAllStatementsDTO(
-            $this->statementRepository->getAll(),
-        );
+        $allStatementsCache = $this->statementEntityCache->getAll();
+
+        if (!$allStatementsCache) {
+            $allStatements = $this->statementRepository->getAll();
+
+            if ($allStatements->isEmpty()) {
+                throw new CollectionEmptyException(ErrorMessages::STATEMENT_COLLECTION_EMPTY);
+            }
+
+            $this->statementEntityCache->putAll($allStatements->toArray());
+            return $this->statementServiceDataAdapter->createAllStatementsDTO($allStatements);
+        }
+
+        return $this->statementServiceDataAdapter->createAllStatementsDTO(Statement::hydrate($allStatementsCache));
     }
 
     /**
      * @throws ServerException
-     * @throws ModelNotFoundException
      */
     public function updateStatement(StatementDTO $updateStatementDTO): StatementDTO
     {
@@ -82,11 +94,13 @@ readonly class StatementService
                 throw new ModelNotFoundException(ErrorMessages::STATEMENT_NOT_FOUND);
             }
 
-            $statement->update([
-                'title'  => $updateStatementDTO->title,
-                'number' => $updateStatementDTO->number,
-                'date'   => $updateStatementDTO->date,
-            ]);
+            $this->statementRepository->update(
+                statement: $statement,
+                data: Arr::only(
+                    $updateStatementDTO->toArray(),
+                    ['title', 'number', 'date'],
+                ),
+            );
 
             $statementDTO = $this->statementServiceDataAdapter->createResponseStatementDTO($statement);
 
@@ -98,8 +112,8 @@ readonly class StatementService
             return $statementDTO;
         } catch (ModelNotFoundException $e) {
             throw $e;
-        } catch (Throwable $exception) {
-            Log::error($exception->getMessage(), ['exception' => $exception]);
+        } catch (Throwable $e) {
+            Log::error($e->getMessage(), ['exception' => $e]);
             throw new ServerException(ErrorMessages::SERVER_ERROR);
         }
     }
@@ -107,9 +121,6 @@ readonly class StatementService
     public function deleteStatement(int $id): string
     {
         if ($this->statementRepository->destroy($id)) {
-
-            $this->statementEntityCache->forget($id);
-
             return ResponseMessages::DELETE_STATEMENT_SUCCESS;
         }
 
@@ -122,6 +133,11 @@ readonly class StatementService
     public function transitionStatus(StatementDTO $dto, StatusTransitionType $type, ?User $actor = null): StatementDTO
     {
         $statement = $this->statementRepository->findById($dto->id);
+
+        if (!$statement) {
+            throw new ModelNotFoundException(ErrorMessages::STATEMENT_NOT_FOUND);
+        }
+
         $strategy = $this->strategyResolver->resolve($type);
 
         if (!$strategy->canTransition($statement, $actor)) {

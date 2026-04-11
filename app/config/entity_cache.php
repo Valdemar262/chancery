@@ -8,5 +8,8 @@ return [
         'statement' => [
             'ttl' => (int) env('CACHE_TTL', 3600),
         ],
+        'resource' => [
+            'ttl' => (int) env('CACHE_TTL', 3600),
+        ],
     ],
 ];

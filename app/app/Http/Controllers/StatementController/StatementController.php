@@ -6,6 +6,7 @@ namespace App\Http\Controllers\StatementController;
 
 use App\DataAdapters\StatementServiceDataAdapter\StatementServiceDataAdapter;
 use App\Enums\StatusTransitionType;
+use App\Exceptions\CollectionEmptyException;
 use App\Http\Controllers\Controller;
 use App\Models\Statement;
 use App\Services\StatementService\StatementService;
@@ -28,6 +29,9 @@ class StatementController extends Controller
             ));
     }
 
+    /**
+     * @throws CollectionEmptyException
+     */
     public function getAllStatements(): JsonResponse
     {
         return getSuccessResponse(
@@ -55,7 +59,9 @@ class StatementController extends Controller
 
     public function deleteStatement(int $id): JsonResponse
     {
-        return getSuccessResponse($this->statementService->deleteStatement($id));
+        return getSuccessResponse(
+            $this->statementService->deleteStatement($id),
+        );
     }
 
     /**
