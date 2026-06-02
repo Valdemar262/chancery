@@ -6,12 +6,12 @@ use Tests\TestCase;
 
 class AuthControllerTest extends TestCase
 {
-    const PERSONAL_INFORMATION = [
+    const array PERSONAL_INFORMATION = [
         'email' => 'email@email.com',
         'password' => 'password',
     ];
 
-    const NAME = 'name';
+    const string NAME = 'name';
 
     public function test_register(): void
     {

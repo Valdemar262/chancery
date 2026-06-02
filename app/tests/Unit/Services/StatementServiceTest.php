@@ -16,6 +16,8 @@ use Mockery;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Enums\ErrorMessages;
 use App\Enums\ResponseMessages;
+use App\Services\StatementService\Strategies\StatusTransitionStrategyResolver;
+use App\Cache\Entities\StatementEntityCache;
 
 class StatementServiceTest extends TestCase
 {
@@ -27,10 +29,14 @@ class StatementServiceTest extends TestCase
 
         $this->statementServiceDataAdapter = Mockery::mock(StatementServiceDataAdapter::class);
         $this->statementRepository = Mockery::mock(StatementRepository::class);
+        $this->StatusTransitionStrategyResolver = Mockery::mock(StatusTransitionStrategyResolver::class);
+        $this->statementEntityCache = Mockery::mock(StatementEntityCache::class);
 
         $this->statementService = new StatementService(
             $this->statementServiceDataAdapter,
-            $this->statementRepository
+            $this->statementRepository,
+            $this->StatusTransitionStrategyResolver,
+            $this->statementEntityCache,
         );
     }
 
@@ -42,6 +48,9 @@ class StatementServiceTest extends TestCase
             user_id: User::factory()->create()->id,
             number: $this->fakerClient->faker->randomNumber(),
             date: $this->fakerClient->faker->date(),
+            status: $this->fakerClient->faker->randomElement(['draft', 'submitted', 'approved', 'rejected']),
+            resource_id: null,
+            approved_by: User::factory()->create()->id,
         );
     }
 
@@ -59,6 +68,9 @@ class StatementServiceTest extends TestCase
             user_id: User::factory()->create()->id,
             number: $this->fakerClient->faker->randomNumber(),
             date: $this->fakerClient->faker->date(),
+            status: $this->fakerClient->faker->randomElement(['draft', 'submitted', 'approved', 'rejected']),
+            resource_id: null,
+            approved_by: User::factory()->create()->id,
         );
 
         $result = $this->statementService->createStatement($statementDTO);
