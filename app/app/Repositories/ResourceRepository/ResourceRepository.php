@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repositories\ResourceRepository;
 
 use App\Data\ResourceDTO\ResourceDTO;
 use App\Models\Resource;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 
 class ResourceRepository
 {
@@ -13,13 +16,28 @@ class ResourceRepository
         return Resource::create($resourceDTO->toArray());
     }
 
-    public function all(): Collection
+    public function getAll(): Collection
     {
         return Resource::all();
     }
 
-    public function getResourceById(int $id): Resource
+    public function findById(int $id): ?Resource
     {
-        return Resource::findOrFail($id);
+        return Resource::find($id);
+    }
+
+    public function findByField(string $field, string|int $value): Resource|Model|null
+    {
+        return Resource::query()->where($field, '=', $value)->first();
+    }
+
+    public function update(Resource $resource, array $data): bool
+    {
+        return $resource->update($data);
+    }
+
+    public function destroy(int $id): int
+    {
+        return Resource::destroy($id);
     }
 }

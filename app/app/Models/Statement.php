@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use app\Enums\StatementStatus;
+use App\Traits\HasObservers;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -23,6 +26,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Statement extends Model
 {
     use HasFactory;
+    use HasObservers;
 
     protected $fillable = [
         'title',
@@ -61,5 +65,28 @@ class Statement extends Model
     public function scopeApproved($query)
     {
         return $query->where('status', 'approved');
+    }
+
+    public function approve(int $resourceId, int $actorId): void
+    {
+        $this->resource_id = $resourceId;
+        $this->approved_by = $actorId;
+        $this->status = StatementStatus::APPROVED->value;
+        $this->save();
+        $this->fireEvent('approved');
+    }
+
+    public function submit(): void
+    {
+        $this->status = StatementStatus::SUBMITTED->value;
+        $this->save();
+        $this->fireEvent('submitted');
+    }
+
+    public function reject(): void
+    {
+        $this->status = StatementStatus::REJECTED->value;
+        $this->save();
+        $this->fireEvent('rejected');
     }
 }

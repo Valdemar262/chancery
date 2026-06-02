@@ -41,6 +41,9 @@ class StatementControllerTest extends TestCase
             user_id: User::factory()->create()->id,
             number: $this->fakerClient->faker->randomNumber(),
             date: $this->fakerClient->faker->date(),
+            status: $this->fakerClient->faker->randomElement(['draft', 'submitted', 'approved', 'rejected']),
+            resource_id: null,
+            approved_by: User::factory()->create()->id,
         );
     }
 
@@ -97,7 +100,7 @@ class StatementControllerTest extends TestCase
             ->with($statement)
             ->andReturn($responseDTO);
 
-        $response = $this->statementController->showStatement($statement);
+        $response = $this->statementController->showStatement($statement->id);
 
         $this->assertInstanceOf(JsonResponse::class, $response);
         $this->assertEquals(200, $response->getStatusCode());

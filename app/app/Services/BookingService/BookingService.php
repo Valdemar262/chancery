@@ -11,11 +11,11 @@ use App\Models\Statement;
 use App\Repositories\BookingRepository\BookingRepository;
 use App\Repositories\ResourceRepository\ResourceRepository;
 
-class BookingService
+readonly class BookingService
 {
     public function __construct(
-        private readonly BookingRepository  $bookingRepository,
-        private readonly ResourceRepository $resourceRepository,
+        private BookingRepository  $bookingRepository,
+        private ResourceRepository $resourceRepository,
     ) {}
 
     public function createBooking(BookingDTO $bookingDTO): Booking
@@ -25,7 +25,7 @@ class BookingService
 
     public function getBookings(int $id)
     {
-        return $this->resourceRepository->getResourceById($id)->bookings;
+        return $this->resourceRepository->findById($id)->bookings;
     }
 
     public function deleteBookings(int $id): string
