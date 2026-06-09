@@ -6,9 +6,9 @@ use Illuminate\Support\Collection;
 
 class RoleAndPermissionNames
 {
-    const ROLE_CLIENT = 'client';
+    const string ROLE_CLIENT = 'client';
 
-    const ROLE_ADMIN = 'admin';
+    const string ROLE_ADMIN = 'admin';
 
     /**
      * @return Collection<string, string>
